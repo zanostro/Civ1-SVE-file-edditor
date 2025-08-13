@@ -1,3 +1,18 @@
+/**
+ * =============================================================
+ * ** utill.hpp **
+ * =============================================================
+ * ++ Utility Definitions ++
+ * -------------------------------------------------------------
+ * Created on: August 13, 2025
+ * Author: geek
+ * -------------------------------------------------------------
+ * Purpose: This header file contains utility macros and
+ *          constants used throughout the project. Defines
+ *          save file paths and debug flags.
+ * =============================================================
+ */
+
 #ifndef UTILL_HPP
 #define UTILL_HPP
 

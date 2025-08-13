@@ -1,20 +1,3 @@
-/**
- * =============================================================
- * ** sve_format.hpp **
- * =============================================================
- * ++ SVE File Format Definitions ++
- * -------------------------------------------------------------
- * Created on: August 13, 2025
- * Author: geek
- * -------------------------------------------------------------
- * Purpose: This file is based on the reference table provided
- *          in the CivFanatics forum thread:
- *          https://forums.civfanatics.com/threads/sve-file-format.493581/page-2#post-12422448
- *          Special thanks to the creators and contributors for
- *          their efforts in documenting this format.
- * =============================================================
- */
-
 #ifndef SVE_FORMAT_HPP
 #define SVE_FORMAT_HPP
 
