@@ -1,18 +1,3 @@
-/**
- * =============================================================
- * ** file_reader.cpp **
- * =============================================================
- * ++ File Reading Implementation ++
- * -------------------------------------------------------------
- * Created on: August 13, 2025
- * Author: geek
- * -------------------------------------------------------------
- * Purpose: Implementation of SVE file reading functions.
- *          Handles validation and loading of Civilization 1
- *          save files from disk into memory structures.
- * =============================================================
- */
-
 #include "file_reader.hpp"
 
 #include "utill.hpp"

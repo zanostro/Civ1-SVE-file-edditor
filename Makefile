@@ -18,8 +18,6 @@ stage:
 	@mkdir -p "$(TARGETDIR)"
 	@# copy EVERYTHING from src (incl. subdirs & dotfiles)
 	@cp -a "$(SRC_DIR)"/. "$(TARGETDIR)"/ 2>/dev/null || true
-	@# copy saves if present (incl. subdirs & dotfiles)
-	@if [ -d "$(SAVE_DIR)" ]; then cp -a "$(SAVE_DIR)"/. "$(TARGETDIR)"/; fi
 	@echo "Staged into $(TARGETDIR)/"
 .PHONY: stage
 
