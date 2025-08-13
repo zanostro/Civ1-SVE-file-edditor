@@ -1,0 +1,1195 @@
+//------------------------------------------------
+//--- 010 Editor v11.0.1 Binary Template
+//
+//      File: Civ1Template.bt
+//   Authors: Zanostro
+//   Version: 1.0
+//   Purpose: parse and interpret save files (.SVE) from the original 1991 release of Sid Meier's Civilization.
+//  Category: 
+// File Mask: *.bt;
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+
+
+
+// If the value is greater than 4, the behavior is undefined
+
+typedef struct Coordinates{
+    byte x;
+    byte y;
+};
+
+
+enum <short> DifficultyLevel {
+    DIFFICULTY_CHIEFTAIN = 0,  // Easiest
+    DIFFICULTY_WARLORD   = 1,
+    DIFFICULTY_PRINCE    = 2,
+    DIFFICULTY_KING      = 3,
+    DIFFICULTY_EMPEROR   = 4   // Hardest
+};
+
+
+typedef struct LeaderName{
+    char Name[14];
+};
+
+
+typedef struct CivName{
+    char Name[12];
+};
+
+
+typedef struct CitizenName{
+    char Name[11];
+};
+
+typedef struct ActiveUnit{
+    short Units[28];
+};
+
+
+typedef struct UnitsInProduction{
+    short Units[28];
+};
+
+
+enum <short> TechID {
+    TECH_ALPHABET              = 0,
+    TECH_CODE_OF_LAWS          = 1,
+    TECH_CURRENCY              = 2,
+    TECH_ATOMIC_THEORY         = 3,
+    TECH_DEMOCRACY             = 4,
+    TECH_MONARCHY              = 5,
+    TECH_ASTRONOMY             = 6,
+    TECH_MAPMAKING             = 7,
+    TECH_NAVIGATION            = 8,
+    TECH_MATHEMATICS           = 9,
+    TECH_MEDICINE              = 10,
+    TECH_PHYSICS               = 11,
+    TECH_ENGINEERING           = 12,
+    TECH_UNIVERSITY            = 13,
+    TECH_MAGNETISM             = 14,
+    TECH_ELECTRONICS           = 15,
+    TECH_MASONRY               = 16,
+    TECH_BRONZE_WORKING        = 17,
+    TECH_IRON_WORKING          = 18,
+    TECH_BRIDGE_BUILDING       = 19,
+    TECH_INVENTION             = 20,
+    TECH_COMPUTERS             = 21,
+    TECH_WRITING               = 22,
+    TECH_STEAM_ENGINE          = 23,
+    TECH_TRADE                 = 24,
+    TECH_CEREMONIAL_BURIAL     = 25,
+    TECH_MYSTICISM             = 26,
+    TECH_NUCLEAR_FISSION       = 27,
+    TECH_PHILOSOPHY            = 28,
+    TECH_RELIGION              = 29,
+    TECH_LITERACY              = 30,
+    TECH_HORSEBACK_RIDING      = 31,
+    TECH_FEUDALISM             = 32,
+    TECH_THE_WHEEL             = 33,
+    TECH_GUNPOWDER             = 34,
+    TECH_INDUSTRIALIZATION     = 35,
+    TECH_CHEMISTRY             = 36,
+    TECH_COMBUSTION            = 37,
+    TECH_FLIGHT                = 38,
+    TECH_ADVANCED_FLIGHT       = 39,
+    TECH_SPACE_FLIGHT          = 40,
+    TECH_MASS_PRODUCTION       = 41,
+    TECH_POTTERY               = 42,
+    TECH_COMMUNISM             = 43,
+    TECH_THE_REPUBLIC          = 44,
+    TECH_CONSTRUCTION          = 45,
+    TECH_ROCKETRY              = 46,
+    TECH_THE_CORPORATION       = 47,
+    TECH_METALLURGY            = 48,
+    TECH_RAILROAD              = 49,
+    TECH_NUCLEAR_POWER         = 50,
+    TECH_THEORY_OF_GRAVITY     = 51,
+    TECH_STEEL                 = 52,
+    TECH_BANKING               = 53,
+    TECH_ELECTRICITY           = 54,
+    TECH_REFINING              = 55,
+    TECH_EXPLOSIVES            = 56,
+    TECH_SUPERCONDUCTOR        = 57,
+    TECH_AUTOMOBILE            = 58,
+    TECH_GENETIC_ENGINEERING   = 59,
+    TECH_PLASTICS              = 60,
+    TECH_RECYCLING             = 61,
+    TECH_CHIVALRY              = 62,
+    TECH_ROBOTICS              = 63,
+    TECH_CONSCRIPTION          = 64,
+    TECH_LABOR_UNION           = 65,
+    TECH_FUSION_POWER          = 66,
+    TECH_DUMMY1                = 67,
+    TECH_DUMMY2                = 68,
+    TECH_DUMMY3                = 69,
+    TECH_DUMMY4                = 70,
+    TECH_FUTURE_TECH           = 71,
+
+
+    NONE                       = -1
+};
+
+
+
+
+typedef struct DiscoveredCivAdvance{
+
+    /*Advances already discovered by a Civ:
+
+    !!! Must also update tech count !!!
+
+
+    a series of 10 bytes, 5 short bitflags, where each indicates whether an Advance was discovered or not
+    refer to Civ Advances table for the list of valid IDs
+    the discovered Advance bits are orderes in the same order as in the Civ Advances table (see this thread by Gowron, section 6. 'Tech Tree');
+    the flag bits must be read as follows:
+
+        flag_tech0 bit: 15 14 13 12   11 10 9   8     7  6  5    4  3  2  1  0
+        advance ID:     15 14 13 12   11 10 9   8     7  6  5    4  3  2  1  0
+        
+        flag_tech1 bit: 15 14 13 12   11 10  9  8     7  6  5  4    3  2  1  0
+        advance ID:     31 30 29 28   27 26 25 24    23 22 21 20   19 18 17 16
+        
+        flag_tech2 bit: 15 14 13 12   11 10  9  8     7  6  5  4    3  2  1  0
+        advance ID:     47 46 45 44   43 42 41 40    39 38 37 36   35 34 33 32
+        
+        flag_tech3 bit: 15 14 13 12   11 10  9  8     7  6  5  4    3  2  1  0
+        advance ID:     63 62 61 60   59 58 57 56    55 54 53 52   51 50 49 48
+        
+        flag_tech4 bit: 15 14 13 12   11 10  9  8     7  6  5  4    3  2  1  0
+        advance ID:     79 78 77 76   75 74 73 72    71 70 69 68   67 66 65 64
+    
+
+    See above enum for tech id mappings
+
+        
+    */
+
+    short flag_tech0;
+    short flag_tech1;
+    short flag_tech2;
+    short flag_tech3;
+    short flag_tech4;
+};
+
+
+enum <short> Govnernment{
+    ANARCHY = 0,
+    DESPOTIM = 1,
+    MONARCHY = 2,
+    COMMUNISM = 3,
+    REPUBLIC = 4,
+    DEMOCRACY = 5
+};
+
+
+
+enum <short> Strategy{
+    To_Settle = 0,
+    To_Atack = 1,
+    To_Defend = 2,
+    To_Transport_Units_To = 3
+};
+
+
+typedef struct PerContinentCivAiStrategy{
+    /*
+    Per-continent Civ strategy:
+    a series of 8 data blocks (1 for each Civ)
+    each data block contains 16 short integers, 1 for each continent (16*2 = 32 bytes)
+    total size is 8*32 = 256 bytes
+    each short integer is a value that describes the Civ's AI strategy for this continent (values above suggested by Gowron):
+
+    */
+
+    Strategy strategy[16];
+
+};
+
+
+
+// TODO: THIS IS NOT CORRECT -- FOUND IN GAME VALUE OF 19
+enum <short> DiplomaticStatus {
+
+    DIPLOMACY_AT_WAR             = 1 << 0,   // Bit 0: at war
+    DIPLOMACY_AT_PEACE           = 1 << 1,   // Bit 1: at peace
+    DIPLOMACY_ALLIANCE           = 1 << 2,   // Bit 2: alliance
+    DIPLOMACY_VENDETTA           = 1 << 3,   // Bit 3: vendetta
+    DIPLOMACY_UNKNOWN_4          = 1 << 4,   // Bit 4: ?
+    DIPLOMACY_UNKNOWN_5          = 1 << 5,   // Bit 5: ?
+    DIPLOMACY_EMBASSY_ESTABLISHED= 1 << 6,   // Bit 6: embassy established
+    DIPLOMACY_UNKNOWN_7          = 1 << 7,   // Bit 7: ?
+
+    DIPLOMACY_UNKNOWN_8          = 1 << 8,   // Bit 8: ?
+    DIPLOMACY_UNKNOWN_9          = 1 << 9,   // Bit 9: ?
+    DIPLOMACY_UNKNOWN_10         = 1 << 10,  // Bit 10: ?
+    DIPLOMACY_UNKNOWN_11         = 1 << 11,  // Bit 11: ?
+    DIPLOMACY_UNKNOWN_12         = 1 << 12,  // Bit 12: ?
+    DIPLOMACY_UNKNOWN_13         = 1 << 13,  // Bit 13: ?
+    DIPLOMACY_UNKNOWN_14         = 1 << 14,  // Bit 14: ?
+    DIPLOMACY_UNKNOWN_15         = 1 << 15   // Bit 15: ?
+};
+
+typedef struct DiplomaticRelations{
+    DiplomaticStatus relations[8];
+};
+
+enum <short> CivID {
+
+    // it is possible (tested) to set any value for any Civ, so that any leader can have any other leader graphics
+   
+    CIV_ROMANS      = 1,   // Caesar      = KING10.PIC (White flavor)
+    CIV_BABYLONIANS = 2,   // Hammurabi   = KING07.PIC
+    CIV_GERMANS     = 3,   // Frederick   = KING12.PIC
+    CIV_EGYPTIANS   = 4,   // Ramesses    = KING01.PIC
+    CIV_AMERICANS   = 5,   // Abe Lincoln = KING04.PIC
+    CIV_GREEKS      = 6,   // Alexander   = KING13.PIC
+    CIV_INDIANS     = 7,   // Gandhi      = KING02.PIC
+    
+    CIV_RUSSIANS    = 8,   // Stalin      = KING08.PIC (White flavor alternate: 1 + 8)
+    CIV_ZULU        = 9,  // Shaka       = KING03.PIC
+    CIV_FRENCH      = 10,  // Napoleon    = KING11.PIC
+    CIV_AZTECS      = 11,  // Moctezuma   = KING09.PIC
+    CIV_CHINESE     = 12,  // Mao Zedong  = KING06.PIC
+    CIV_ENGLISH     = 13,  // Elizabeth   = KING00.PIC
+    CIV_MONGOLS     = 14,  // Genghis Khan= KING05.PIC
+   
+
+    CIV_BARBARIANS = -1,   // Attila - no graphics
+
+    CIV_NONE       = 0      
+};
+
+
+typedef struct PerContinentCivDefense{
+    short continent[16];
+};
+
+typedef struct PerContinentCivAtack{
+    short continent[16];
+};
+
+typedef struct PerContinentCivCityCount{
+    short continent[16];
+};
+
+
+// Speculative enum for Civ1 City Improvements (IDs 0–23)
+// TODO: prove or disprove this 
+enum <byte> CityImprovements
+{
+    AQUEDUCT            = 0,
+    BARRACKS            = 1,
+    GRANARY             = 2,
+    TEMPLE              = 3,
+    CITY_WALLS          = 4,
+    CATHEDRAL           = 5,
+    COURTHOUSE          = 6,
+    COLOSSEUM           = 7,
+    LIBRARY             = 8,
+    MARKETPLACE         = 9,
+    BANK                = 10,
+    FACTORY             = 11,
+    HYDRO_PLANT         = 12,
+    POWER_PLANT         = 13,
+    MANUFACTURING_PLANT = 14,
+    NUCLEAR_PLANT       = 15,
+    MASS_TRANSIT        = 16,
+    RECYCLING_CENTER    = 17,
+    UNIVERSITY          = 18,
+    PALACE              = 19,
+    SDI_DEFENSE         = 20,
+    SS_COMPONENT        = 21,
+    SS_MODULE           = 22,
+    SS_STRUCTURAL       = 23
+    // bits 24–31 may be unused or reserved
+};
+
+
+struct CityBuildingFlags{
+/*
+    a series of 4 byte bitflag, where each bit indicates whether a given City improvement is built in the city
+    the building bits are ordered in the same order as in the City Improvements table (see ref);
+    the flag bits must be read as follows:
+    Code:
+
+    buildings_flag0 bit:  8  7  6  5    4  3  2  1
+    building ID:          7  6  5  4    3  2  1  0
+
+    buildings_flag1 bit:  8  7  6  5    4  3  2  1
+    building ID:         15 14 13 12   11 10  9  8
+
+    buildings_flag2 bit:  8  7  6  5    4  3  2  1
+    building ID:         23 22 21 20   19 18 17 16
+
+    buildings_flag3 bit:  8  7  6  5    4  3  2  1
+    building ID:          .  .  .  .    .  .  .  .
+
+    the last byte is actually unused, at least not for city buildings
+*/
+    byte buildings_flag0;
+    byte buildings_flag1;
+    byte buildings_flag2;
+    byte buildings_flag3; // possibly unused
+};
+
+
+
+
+
+// Complete City Name Enum for Civilization I
+// Format: CITY_<NAME>_<CIVILIZATION>
+
+enum <ubyte> CityId {
+    // Roman
+    CITY_ROME_ROMAN = 0,
+    CITY_CAESAREA_ROMAN,
+    CITY_CARTHAGE_ROMAN,
+    CITY_NICOPOLIS_ROMAN,
+    CITY_BYZANTIUM_ROMAN,
+    CITY_BRUNDISIUM_ROMAN,
+    CITY_SYRACUSE_ROMAN,
+    CITY_ANTIOCH_ROMAN,
+    CITY_PALMYRA_ROMAN,
+    CITY_CYRENE_ROMAN,
+    CITY_GORDION_ROMAN,
+    CITY_TYRUS_ROMAN,
+    CITY_JERUSALEM_ROMAN,
+    CITY_SELEUCIA_ROMAN,
+    CITY_RAVENNA_ROMAN,
+    CITY_ARTAXATA_ROMAN,
+
+    // Babylonian
+    CITY_BABYLON_BABYLONIAN,
+    CITY_SUMER_BABYLONIAN,
+    CITY_URUK_BABYLONIAN,
+    CITY_NINEVEH_BABYLONIAN,
+    CITY_ASHUR_BABYLONIAN,
+    CITY_ELLIPI_BABYLONIAN,
+    CITY_AKKAD_BABYLONIAN,
+    CITY_ERIDU_BABYLONIAN,
+    CITY_KISH_BABYLONIAN,
+    CITY_NIPPUR_BABYLONIAN,
+    CITY_SHURUPPAK_BABYLONIAN,
+    CITY_ZARIQUM_BABYLONIAN,
+    CITY_IZIBIA_BABYLONIAN,
+    CITY_NIMRUD_BABYLONIAN,
+    CITY_ARBELA_BABYLONIAN,
+    CITY_ZAMUA_BABYLONIAN,
+
+    // German
+    CITY_BERLIN_GERMAN,
+    CITY_LEIPZIG_GERMAN,
+    CITY_HAMBURG_GERMAN,
+    CITY_BREMEN_GERMAN,
+    CITY_FRANKFURT_GERMAN,
+    CITY_BONN_GERMAN,
+    CITY_NUREMBERG_GERMAN,
+    CITY_COLOGNE_GERMAN,
+    CITY_HANNOVER_GERMAN,
+    CITY_MUNICH_GERMAN,
+    CITY_STUTTGART_GERMAN,
+    CITY_HEIDELBURG_GERMAN,
+    CITY_SALZBURG_GERMAN,
+    CITY_KONIGSBERG_GERMAN,
+    CITY_DORTMUND_GERMAN,
+    CITY_BRANDENBURG_GERMAN,
+
+    // Egyptian
+    CITY_THEBES_EGYPTIAN,
+    CITY_MEMPHIS_EGYPTIAN,
+    CITY_ORYX_EGYPTIAN,
+    CITY_HELIOPOLIS_EGYPTIAN,
+    CITY_GAZA_EGYPTIAN,
+    CITY_ALEXANDRIA_EGYPTIAN,
+    CITY_BYBLOS_EGYPTIAN,
+    CITY_CAIRO_EGYPTIAN,
+    CITY_COPTOS_EGYPTIAN,
+    CITY_EDFU_EGYPTIAN,
+    CITY_PITHOM_EGYPTIAN,
+    CITY_BUSIRIS_EGYPTIAN,
+    CITY_ATHRIBIS_EGYPTIAN,
+    CITY_MENDES_EGYPTIAN,
+    CITY_TANIS_EGYPTIAN,
+    CITY_ABYDOS_EGYPTIAN,
+
+    // American
+    CITY_WASHINGTON_AMERICAN,
+    CITY_NEW_YORK_AMERICAN,
+    CITY_BOSTON_AMERICAN,
+    CITY_PHILADELPHIA_AMERICAN,
+    CITY_ATLANTA_AMERICAN,
+    CITY_CHICAGO_AMERICAN,
+    CITY_BUFFALO_AMERICAN,
+    CITY_ST_LOUIS_AMERICAN,
+    CITY_DETROIT_AMERICAN,
+    CITY_NEW_ORLEANS_AMERICAN,
+    CITY_BALTIMORE_AMERICAN,
+    CITY_DENVER_AMERICAN,
+    CITY_CINCINNATI_AMERICAN,
+    CITY_DALLAS_AMERICAN,
+    CITY_LOS_ANGELES_AMERICAN,
+    CITY_LAS_VEGAS_AMERICAN,
+
+    // Greek
+    CITY_ATHENS_GREEK,
+    CITY_SPARTA_GREEK,
+    CITY_CORINTH_GREEK,
+    CITY_DELPHI_GREEK,
+    CITY_ERETRIA_GREEK,
+    CITY_PHARSALOS_GREEK,
+    CITY_ARGOS_GREEK,
+    CITY_MYCENAE_GREEK,
+    CITY_HERAKLEIA_GREEK,
+    CITY_ANTIOCH_GREEK,
+    CITY_EPHESOS_GREEK,
+    CITY_RHODES_GREEK,
+    CITY_KNOSSOS_GREEK,
+    CITY_TROY_GREEK,
+    CITY_PERGAMON_GREEK,
+    CITY_MILETOS_GREEK,
+
+    // Indian
+    CITY_DELHI_INDIAN,
+    CITY_BOMBAY_INDIAN,
+    CITY_MADRAS_INDIAN,
+    CITY_BANGALORE_INDIAN,
+    CITY_CALCUTTA_INDIAN,
+    CITY_LAHORE_INDIAN,
+    CITY_KARACHI_INDIAN,
+    CITY_KOLHAPUR_INDIAN,
+    CITY_JAIPUR_INDIAN,
+    CITY_HYDERABAD_INDIAN,
+    CITY_BENGAL_INDIAN,
+    CITY_CHITTAGONG_INDIAN,
+    CITY_PUNJAB_INDIAN,
+    CITY_DACCA_INDIAN,
+    CITY_INDUS_INDIAN,
+    CITY_GANGES_INDIAN,
+
+    // Russian
+    CITY_MOSCOW_RUSSIAN,
+    CITY_LENINGRAD_RUSSIAN,
+    CITY_KIEV_RUSSIAN,
+    CITY_MINSK_RUSSIAN,
+    CITY_SMOLENSK_RUSSIAN,
+    CITY_ODESSA_RUSSIAN,
+    CITY_SEVASTOPOL_RUSSIAN,
+    CITY_TBLISI_RUSSIAN,
+    CITY_SVERDLOVSK_RUSSIAN,
+    CITY_YAKUTSK_RUSSIAN,
+    CITY_VLADIVOSTOK_RUSSIAN,
+    CITY_NOVOGRAD_RUSSIAN,
+    CITY_KRASNOYARSK_RUSSIAN,
+    CITY_RIGA_RUSSIAN,
+    CITY_ROSTOV_RUSSIAN,
+    CITY_ASTRAKHAN_RUSSIAN,
+
+    // Zulu
+    CITY_ZIMBABWE_ZULU,
+    CITY_ULUNDI_ZULU,
+    CITY_BAPEDI_ZULU,
+    CITY_HLOBANE_ZULU,
+    CITY_ISANDHLWANA_ZULU,
+    CITY_INTOMBE_ZULU,
+    CITY_MPONDO_ZULU,
+    CITY_NGOME_ZULU,
+    CITY_SWAZI_ZULU,
+    CITY_TUGELA_ZULU,
+    CITY_UMTATA_ZULU,
+    CITY_UMFOLOZI_ZULU,
+    CITY_IBABANAGO_ZULU,
+    CITY_ISIPEZI_ZULU,
+    CITY_AMATIKULU_ZULU,
+    CITY_ZUNGUIN_ZULU,
+
+    // French
+    CITY_PARIS_FRENCH,
+    CITY_ORLEANS_FRENCH,
+    CITY_LYONS_FRENCH,
+    CITY_TOURS_FRENCH,
+    CITY_CHARTRES_FRENCH,
+    CITY_BORDEAUX_FRENCH,
+    CITY_ROUEN_FRENCH,
+    CITY_AVIGNON_FRENCH,
+    CITY_MARSEILLES_FRENCH,
+    CITY_GRENOBLE_FRENCH,
+    CITY_DIJON_FRENCH,
+    CITY_AMIENS_FRENCH,
+    CITY_CHERBOURG_FRENCH,
+    CITY_POITIERS_FRENCH,
+    CITY_TOULOUSE_FRENCH,
+    CITY_BAYONNE_FRENCH,
+
+    // Aztec
+    CITY_TENOCHTITLAN_AZTEC,
+    CITY_CHIAUHTIA_AZTEC,
+    CITY_CHAPULTEPEC_AZTEC,
+    CITY_COATEPEC_AZTEC,
+    CITY_AYOTZINCO_AZTEC,
+    CITY_ITZAPALAPA_AZTEC,
+    CITY_IZTAPAM_AZTEC,
+    CITY_MITXCOAC_AZTEC,
+    CITY_TACUBAYA_AZTEC,
+    CITY_TECAMAC_AZTEC,
+    CITY_TEPEZINCO_AZTEC,
+    CITY_TICOMAN_AZTEC,
+    CITY_TLAXCALA_AZTEC,
+    CITY_XALTOCAN_AZTEC,
+    CITY_XICALANGO_AZTEC,
+    CITY_ZUMPANCO_AZTEC,
+
+    // Chinese
+    CITY_PEKING_CHINESE,
+    CITY_SHANGHAI_CHINESE,
+    CITY_CANTON_CHINESE,
+    CITY_NANKING_CHINESE,
+    CITY_TSINGTAO_CHINESE,
+    CITY_HANGCHOW_CHINESE,
+    CITY_TIENTSIN_CHINESE,
+    CITY_TATUNG_CHINESE,
+    CITY_MACAO_CHINESE,
+    CITY_ANYANG_CHINESE,
+    CITY_SHANTUNG_CHINESE,
+    CITY_CHINAN_CHINESE,
+    CITY_KAIFENG_CHINESE,
+    CITY_NINGPO_CHINESE,
+    CITY_PAOTING_CHINESE,
+    CITY_YANGCHOW_CHINESE,
+
+    // English
+    CITY_LONDON_ENGLISH,
+    CITY_COVENTRY_ENGLISH,
+    CITY_BIRMINGHAM_ENGLISH,
+    CITY_DOVER_ENGLISH,
+    CITY_NOTTINGHAM_ENGLISH,
+    CITY_YORK_ENGLISH,
+    CITY_LIVERPOOL_ENGLISH,
+    CITY_BRIGHTON_ENGLISH,
+    CITY_OXFORD_ENGLISH,
+    CITY_READING_ENGLISH,
+    CITY_EXETER_ENGLISH,
+    CITY_CAMBRIDGE_ENGLISH,
+    CITY_HASTINGS_ENGLISH,
+    CITY_CANTERBURY_ENGLISH,
+    CITY_BANBURY_ENGLISH,
+    CITY_NEWCASTLE_ENGLISH,
+
+    // Mongol
+    CITY_SAMARKAND_MONGOL,
+    CITY_BOKHARA_MONGOL,
+    CITY_NISHAPUR_MONGOL,
+    CITY_KARAKORUM_MONGOL,
+    CITY_KASHGAR_MONGOL,
+    CITY_TABRIZ_MONGOL,
+    CITY_ALEPPO_MONGOL,
+    CITY_KABUL_MONGOL,
+    CITY_ORMUZ_MONGOL,
+    CITY_BASRA_MONGOL,
+    CITY_KHANBALYK_MONGOL,
+    CITY_KHORASAN_MONGOL,
+    CITY_SHANGTU_MONGOL,
+    CITY_KAZAN_MONGOL,
+    CITY_QUINSAY_MONGOL,
+    CITY_KERMAN_MONGOL,
+
+    // Extra / Overflow Cities
+    CITY_MECCA_EXTRA,
+    CITY_NAPLES_EXTRA,
+    CITY_SIDON_EXTRA,
+    CITY_TYRE_EXTRA,
+    CITY_TARSUS_EXTRA,
+    CITY_ISSUS_EXTRA,
+    CITY_CUNAXA_EXTRA,
+    CITY_CREMONA_EXTRA,
+    CITY_CANNAE_EXTRA,
+    CITY_CAPUA_EXTRA,
+    CITY_TURIN_EXTRA,
+    CITY_GENOA_EXTRA,
+    CITY_UTICA_EXTRA,
+    CITY_CRETE_EXTRA,
+    CITY_DAMASCUS_EXTRA,
+    CITY_VERONA_EXTRA,
+    CITY_SALAMIS_EXTRA,
+    CITY_LISBON_EXTRA,
+    CITY_HAMBURG_EXTRA,
+    CITY_PRAGUE_EXTRA,
+    CITY_SALZBURG_EXTRA,
+    CITY_BERGEN_EXTRA,
+    CITY_VENICE_EXTRA,
+    CITY_MILAN_EXTRA,
+    CITY_GHENT_EXTRA,
+    CITY_PISA_EXTRA,
+    CITY_CORDOBA_EXTRA,
+    CITY_SEVILLE_EXTRA,
+    CITY_DUBLIN_EXTRA,
+    CITY_TORONTO_EXTRA,
+    CITY_MELBOURNE_EXTRA,
+    CITY_SYDNEY_EXTRA
+};
+
+
+
+
+typedef struct City{
+
+    CityBuildingFlags BuildingFlags;
+    Coordinates Coords;
+
+/*
+    a single byte used as bitflag representing the city status:
+    currently known bits are as follows:
+    Code:
+    
+    bit | meaning of bit value = 1
+      0 | Civil disorder
+      1 | Costal city (used by AI to build ships)
+      2 | something related to city celebration/rapture
+      3 | Hydro-powered: city benefits from hydro-electrical power bonus
+      4 | Auto-build: city is in auto-build mode
+      5 | Stolen tech: unclear, related to diplomats stealing techs from cities
+      6 | Something else related to celebration/rapture
+      7 | A city improvement was sold during this turn (cannot sell another one)
+*/
+    ubyte StatusFlag;
+
+    ubyte ActualSize;                        // City 'true' size, as opposed to visible size below
+    ubyte VisibleSize;                       // City size as visible by the human player.
+
+    ubyte CurentProduction;                  //  ID of the current city production; refer to CITY PROD table (TODO)
+
+    ubyte BaseTrade;
+    ubyte OwningCiv;                         // ID of the Civ who owns the city
+    ushort FoodStorage;
+    ushort ShieldsStorage;
+    byte CitySquaresAndSpecialists[6];    
+
+    CityId CityNameId;                        // ID of the name used for the city; this is an index to another data block, which is the list of city names
+    
+    CityId TradingCities[3];                  // ID of up to 3 other cities with which this city is trading; value 0xFF means that no trade route is established
+                                              // Potential oversight: -> SIDNEY is of value 0xFF meaning that no city can have trades with Sidney
+
+    byte Unk[2];
+};
+
+
+
+typedef struct CityName{
+    char Name[13];
+};
+
+
+enum <short> TerrainCategoryEnum{
+    TERRAIN_LAND,
+    TERRAIN_AIR,
+    TERRAIN_SEA
+};
+
+
+// Classifies the functional role of a unit in Civ 1
+// Controls AI behavior and allowable actions
+enum <short> UnitRole {
+    UNIT_ROLE_SETTLER     = 0,  // Can improve terrain, build roads/irrigation, and found cities
+    UNIT_ROLE_LAND_ATTACK = 1,  // Ground units that can attack (e.g., Catapult, Bomber)
+    UNIT_ROLE_DEFENSE     = 2,  // Units focused on defense (e.g., Phalanx, Riflemen)
+    UNIT_ROLE_SEA_ATTACK  = 3,  // Naval units that can attack (e.g., Trireme, Battleship)
+    UNIT_ROLE_AIR_ATTACK  = 4,  // Air units used for bombing and air combat (e.g., Bomber, Fighter)
+    UNIT_ROLE_TRANSPORT   = 5,  // Sea units that carry land units (e.g., Transport, Carrier)
+    UNIT_ROLE_CIVILIAN    = 6   // Non-combat units that can pass through enemy zones (e.g., Caravan, Diplomat)
+};
+
+
+
+enum <byte> UnitTypeMap{
+
+    UNIT_SETTLERS   = 0,
+    UNIT_MILITIA    = 1,
+    UNIT_PHALANX    = 2,
+    UNIT_LEGION     = 3,
+    UNIT_MUSKETEERS = 4,
+    UNIT_RIFLEMEN   = 5,
+    UNIT_CAVALRY    = 6,
+    UNIT_KNIGHTS    = 7,
+    UNIT_CATAPULT   = 8,
+    UNIT_CANNON     = 9,
+    UNIT_CHARIOT    = 10,
+    UNIT_ARMOR      = 11,
+    UNIT_MECH_INF   = 12,
+    UNIT_ARTILLERY  = 13,
+    UNIT_FIGHTER    = 14,
+    UNIT_BOMBER     = 15,
+    UNIT_TRIREME    = 16,
+    UNIT_SAIL       = 17,
+    UNIT_FRIGATE    = 18,
+    UNIT_IRONCLAD   = 19,
+    UNIT_CRUISER    = 20,
+    UNIT_BATTLESHIP = 21,
+    UNIT_SUBMARINE  = 22,
+    UNIT_CARRIER    = 23,
+    UNIT_TRANSPORT  = 24,
+    UNIT_NUCLEAR    = 25,
+    UNIT_DIPLOMAT   = 26,
+    UNIT_CARAVAN    = 27,
+
+    UNIT_NONE       = -1
+};
+
+
+
+
+typedef struct UnitType{
+
+    char TypeName[12];
+    TechID Cancelling_TechId;
+
+    TerrainCategoryEnum TerrainCategory;
+
+    short TotalMoves;
+
+    // Number of turns that the unit can stay outdoors, meaning outside a city, a transport or a carrier:
+    // if value is 0, there is no limitation
+    // if value is 1 or more, the unit will be destroyed after it finished its Nth turn outside a city (if value is 1, then the unit can NEVER end its turn outdoors)
+    short TurnsOutdoord;       
+
+    short Atack;
+    short Defense;
+
+    short Cost; // The actual shield cost (amount of shileds needed to produce the unit) is tenfolds this value:
+
+    /*
+    The range of sight of the unit, i.e. how 'black' squares are revealed when the unit moves towards them:
+
+    0 means that the unit will only reveal its own square and the 8 squares surrounding it; this is the default value, for most unit types; if the unit's terrain category is Land (0),
+    2 means that the unit will reveal two 'rings' of squares surrounding it: the first 'ring' corresponds to the same 8 squares as for value 0; the second 'ring' is compomsed of the 16 additional squares surrounding the 8 squares of the first ring; this is the value for jetfighters and bombers
+    3 is the same as 2, but is assigned to ships (cruiser, battleship, submarine); other difference not identified yet
+    */
+    short SightRange; 
+    short TransportCapacity;
+
+    UnitRole role;
+
+    TechID UnlockingTech;
+
+};
+
+
+
+/*
+    The following 12 bytes represent a Unit
+    this 12-byte sequence is repeated 128 times for each Unit of a Civ
+    the 12*128 bytes block is then repeated 8 times, once for each Civ (totally 12*128*8 = 12288 bytes), representing all of the units available in Civ (TODO: unit type ref table)
+    this also means that Civ only supports 128 active units per civ at any single time
+*/
+typedef struct Unit{
+ /*
+  A single byte used as bitflag representing the unit status:
+
+        bits are as follows:
+  
+            bit | meaning of bit value = 1
+              0 | Sentry/sleeping
+              1 | Improving terrain; see below
+              2 | Fortifying (non-settler unit marked with an 'F', fortified this turn)
+              3 | Fortified (non-settler unit surrounded with 'walls', fortified before this turn)
+              4 | ? (unknown, thought to be related to sea transport, somehow)
+              5 | Veteran
+              6 | Improving terrain; see below
+              7 | Improving terrain; see below
+
+        Flags 1, 6 and 7 are combined as below to determine the current terrain improving task of a settler:
+
+            bit1 | bit6 | bit7 | Task
+               1 |    0 |    0 | Road/rail
+               0 |    1 |    0 | Irrigation
+               0 |    0 |    1 | Mining/forest
+               0 |    1 |    1 | Building fortress
+               1 |    0 |    1 | Cleaning pollution
+
+*/
+    ubyte Status;
+    
+    Coordinates Position;
+    UnitTypeMap Type; 
+    ubyte RemainingMoves;
+    ubyte SpecialMoves;
+    Coordinates GoToCoordinates;
+    byte _unknown;
+    ubyte visibility;
+    
+    /*
+    ID of the next unit in this unit's stack:
+
+    when several units are located on the same map cell, Civ records them as a 'stack', which is actually a linked list;
+    this value is the link to the next unit in the stack;
+    the full linked list is closed loop, i.e. the last unit of the stack has a pointer to the first one
+    the stack/list is used to decide in which order units are activated;
+    for some operations where the maximum number of units is 10 (battle, nukes), this list is also controls which of the 10 units will be affected (first 10 units of the stack)
+    */
+    ubyte NextUnitInStack;
+    ubyte HomeCity;
+
+};
+
+
+
+// this also means that Civ only supports 128 active units per civ at any single time
+typedef struct UnitsPerCivilization{
+    Unit CivilizationUnits[128];
+};
+
+
+typedef struct DestroyedUnitCounts{
+    short NumOfDestroydUnits[8];
+};
+
+
+typedef struct Wonders {
+    byte _unknown[2]; // placeholder for remaining data
+
+    /*
+     Each element contains the index of the city that currently owns the corresponding wonder.
+     The value is a 16-bit index pointing to a city in the dynamic city block (not the static 8-bit CityId enum).
+     A value of 0xFFFF typically means the wonder has not yet been built.
+    */
+    short Pyramids;
+    short HangingGardens;
+    short Colossus;
+    short Lighthouse;
+    short GreatLibrary;
+    short Oracle;
+    short GreatWall;
+    short MagellansExpedition;
+    short MichelangelosChapel;
+    short CopernicusObservatory;
+    short ShakespearesTheatre;
+    short IsaacNewtonsCollege;
+    short JSBachsCathedral;
+    short DarwinsVoyage;
+    short HooverDam;
+    short WomensSuffrage;
+    short ManhattanProject;
+    short UnitedNations;
+    short ApolloProgram;
+    short SETIProgram;
+    short CureForCancer;
+};
+
+
+typedef struct UnitsLostPerCiv {
+
+    short SettlersLost;
+    short MilitiaLost;
+    short PhalanxLost;
+    short LegionLost;
+    short MusketeersLost;
+    short RiflemenLost;
+    short CavalryLost;
+    short KnightsLost;
+    short CatapultLost;
+    short CannonLost;
+    short ChariotLost;
+    short ArmorLost;
+    short MechInfantryLost;
+    short ArtilleryLost;
+    short FighterLost;
+    short BomberLost;
+    short TriremeLost;
+    short SailLost;
+    short FrigateLost;
+    short IroncladLost;
+    short CruiserLost;
+    short BattleshipLost;
+    short SubmarineLost;
+    short CarrierLost;
+    short TransportLost;
+    short NuclearLost;
+    short DiplomatLost;
+    short CaravanLost;
+};
+
+
+
+typedef struct TechnologiesSource {
+/*    
+    Source Civs for technologies:
+    For each civ and each technology, the game stores where the technology came from
+    This only applies to technologies what were acquired via espionage, conquest or diplomatic exchange
+    If a tech is not acquired yet, the value is 0xFF (-1)
+    If a tech was self-discovered, or discovered in a hut, the value is 0
+    It has been observed that for AI Civs, their own Civ ID is stored instead of '0' when they make the discovery themselves
+*/
+    ubyte techs[72];
+};
+
+
+enum <short> PalacePart{
+
+    PALACE_PART_CANNOT_BE_BUILT = -1,
+    PALACE_PART_EMPTY           =  0,
+    PALACE_PART_LEVEL_1         =  1,
+    PALACE_PART_LEVEL_2         =  2,
+    PALACE_PART_LEVEL_3         =  3, // highest possible level for garden parts
+    PALACE_PART_LEVEL_4         =  4, // (highest possible level for castle parts)
+
+};
+
+enum <short> PalacePartStyle{
+
+    PALACE_STYLE_MEDIVAL_EUROPE = 0,
+    PALACE_STYLE_ANCIENT_ROME,
+    PALACE_STYLE_ARABIAN    
+
+};
+
+
+
+typedef struct Palace{
+    byte _unknown0[2];
+
+    // 7 buiding parts: leftmost(0) left(1) centerleft(2) center(3) centerright(4) right(5) rightmost(6)
+    PalacePart BuildingParts[7];
+
+    byte _unknown1[2];
+
+    // 3 garden parts: left hedge(0) central alley(1) right hedge(2)
+
+    PalacePart GardenParts[3];
+    byte _unknown2[2];
+
+    PalacePartStyle BuildingPartsStyle[7];
+
+    byte _unknown3[8];
+
+};
+
+
+
+
+short gameTurnCounter;
+short HumanPlayerCiv;
+
+// this value does NOT determine what Civ the human player is controlling, so changing it does not seem to affect the game
+// its exact usage is still unclear
+short HumanPlayerCivBitflag; 
+
+
+short RandomMapSeed;
+
+// if this value is -4000 (4000 BC) and value of game.game_turn is 0, 
+// loading this savegame will prompt the user to the Civ selection screen
+short CurentYear;
+DifficultyLevel GameDifficultyLevel;
+short ActiveCivilizations;
+
+
+//  ID of the Civ Advance that the current human player is researching; refer to Civ Advances table for the list of valid IDs
+TechID CurentResearchedCivAdvance;
+
+LeaderName LeaderNames[8];
+CivName CivNames[8];
+CitizenName CitizenNames[8];
+
+// Capps at 30.000
+short Gold[8]; 
+
+
+short researchProgress[8];
+
+ActiveUnit ActiveUnits[8];
+UnitsInProduction UnitsInProductionPerCiv[8];
+
+// Each integer s the count of how many Advances a Civ has already discovered
+short DiscoveredAdvancesCount[8];
+DiscoveredCivAdvance DiscoveredCivAdvances[8];
+
+Govnernment CivGovernment[8];
+
+PerContinentCivAiStrategy PerContinentCivAiStrategys[8];
+
+DiplomaticRelations Diplomacy[8];
+
+ushort CityCounts[8];
+ushort UnitCounts[8];
+ushort LandCounts[8];
+ushort SettlerCounts[8];
+
+ushort TotalCivSize[8];
+ushort MilitaryPower[8];
+// each of the 8 short is a ranking value representing the Civ's relative power in the world; the highest rank is 7, the lowest is 0 (Barbarians)
+short CivRankings[8];
+
+ushort TaxRate[8];
+ushort CivScore[8]; // each of the 8 short describes the score of a Civ, as shown in the F9 screen in-game
+ushort HumanContactTurnCounter[8]; // each of the 8 shorts seems to describe the number of turns when a Civ is willing to contact the human player again
+
+short StartingPositionXCoordinate[8];
+
+
+CivID CivIdentityAndGraphics[8];
+
+PerContinentCivDefense PerContinentCivDefenses[8];
+PerContinentCivAtack PerContinentCivAtacks[8];
+PerContinentCivCityCount PerContinentCivCityCounts[8];
+
+ushort ContinentSizes[64];
+ushort OceanSizes[64];
+
+short ContinentBuildingSiteCounts[16];
+
+byte ScoreChart[1200];
+byte PeaceChart[1200];
+
+
+City Cities[128];
+
+UnitType UnitTypes[28];  // representing all of the 28 unit types available in Civ
+UnitsPerCivilization Units[8];
+
+/*
+Map visibility for all Civs:
+
+    this data block contains 1 byte per map cell (80*50 = 4000)
+    each byte contains 8 bits, each bit acts as a 'flag' to determine whether the map cell is revealed (i.e. not black) for a particular Civ
+    bit 0 determines whether Barbarians can see a cell: 
+    it has a particular role, to also indicate whether a tribe hut was visited or not (see Random Seed regarding Tribe Huts)
+    bits 1 to 7 indicate whether Civ 1 to 7 can see the map cell
+*/
+
+byte MapVisibility[4000];
+
+
+// TODO: see how this works
+// for more details, see this post and following: http://forums.civfanatics.com/showthread.php?p=12716635&post12716635
+byte StrategicLocationsStatus[128];
+byte StrategicLocationsPolicy[128];
+byte StrategicLocationsX[128];
+byte StrategicLocationsY[128];
+
+// Each value represents the ID of the Civ who first discovered the corresponding Tech (one of 72 (- 4 dummy) techs)
+CivID TechFirstInventors[72];
+
+DestroyedUnitCounts CivToCivDestroyedUnitCounts[8];
+
+CityName CityNames[256];
+
+
+// TODO: research this
+// Replay data: this block stores data used to generate the replay at the end of a Civ game; see this post by darkpanda: https://forums.civfanatics.com/threads/sve-file-format.493581/#post-12383993
+byte Replay[4098];
+
+Wonders WorldWonders;
+
+UnitsLostPerCiv UnitsLost[8];
+
+TechnologiesSource SourceCivsForTechnologies[8];
+
+
+short PollutedSquareCount;
+
+
+// World pollution accumulated level
+// this is a single byte controlling the level of global warming / world pollution: 
+/*
+    values | sun color
+         0   | none
+       1,2,3 | dark red
+     4,5,6,7 | red
+     8,9,A,B | yellow
+  C,D,E,F,10 | white
+
+     the high-order byte appears to be unused
+*/
+short PollutionEffectLevel;
+
+short GlobalWarmingCount;
+
+/*
+this is a byte bitflag controlling the enabled/disabled status of CIV settings:
+    bit | meaning of bit value = 1
+      0 | Instant advice
+      1 | Auto-save
+      2 | End of turn
+      3 | Animations
+      4 | Sound
+      5 | Enemy moves
+      6 | Civilopedia text
+      7 | Palace
+
+     the high-order byte is unused
+*/
+short GameSettings;
+
+// This data is described in full details in this series of posts: http://forums.civfanatics.com/showthread.php?p=12554133&post12554133
+// Investigation revealed that this data is actually wrongly generated by CIV (a patch to fix this is proposed at the link above)
+// Eact usage of this map is still unclear
+byte LandPathfinding[260];
+
+//  The maximum value (2-byte word) of Civ tech count among all Civs
+short MaxTechCount;
+
+short PlayerFutureTech;
+
+
+/*
+A 2-byte word value whose first 4 bits only are used as function switches, controlling whether certain game features are enabled/disabled:
+
+    bit 0: controls an AI/player diplomacy function, which is not yet fully understood; seems to be related to assessment of diplomatic relationships with others Civs...
+    bit 1: may be related to possibility of civil disorder/unhappy citizens, and also the possibility of improving terrains, but still unclear...
+    bit 2: controls the possibility of building City improvements
+    bit 3: seems to control scientific research function; if 0, no research progress occurs at all
+*/
+short DebugSwitches;
+
+/*
+Determines the level of science for a Civ; 0 means 0% while 10 means 100%
+combined with Tax rate (see above), this also determines the Luxury rate for a Civ
+To be noted that it is possible to set both 10 for Science and Tax, in which case Luxury rate becomes... -100%
+*/
+
+short ScienceRates[8];
+
+short NextAnthologyTurn;
+
+short ComulativeEpicRankings[8];
+
+byte SpaceShips[1462];
+
+
+Palace PlayerPalace;
+
+byte CitiesXCoords[256]; // List of X coordinates for all cities, ordered by City Name ID (256 possible cities), 1 byte per value
+                         // If value is 0xFF, this means the city does not exist
+
+byte CitiesYCoords[256]; // List of Y coordinates for all cities, ordered by City Name ID (256 possible cities), 1 byte per value
+
+
+
+short PalaceLevel; // Number of total palace upgrades for the player
+
+short PeaceTurnCount; // Number of consecutive turns without any battle (incl. between AI players); CIV ignores this before 0 AD
+
+
+short AiOpponents; // Total number of Civs in this game, minus 1; possibly used by Civ to determine whether a Civ should be ressucitated when its counterpart is destroyed
+
+short SpaceshipPopulation[8]; // Population aboard the spaceship (x10,000)
+
+short SpaceshipLaunchYear[8];
+
+/*
+
+Similar to 'Civ identity/leader graphics' but represented as a bitflag
+The position of each bit determines which Civ 'flavour' it codes for: bit 0 is for Barbarians, bit 1 is for Romans/Russians, bit 2 is for Babylonians/Zulu, etc.
+The value of each bit determines which of the 2 Civ is active: bit1=0 -> Romans, bit1=1 -> Russians, etc.
+
+*/
+
+short CivIdentifyFlag;
+
+
+
+
+
