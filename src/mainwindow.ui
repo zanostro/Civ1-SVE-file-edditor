@@ -6,16 +6,335 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>1025</width>
+    <height>581</height>
    </rect>
   </property>
-  <property name="windowTitle">
-   <string>MainWindow</string>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
   </property>
-  <widget class="QWidget" name="centralwidget"/>
-  <widget class="QMenuBar" name="menubar"/>
+  <property name="windowTitle">
+   <string>CIV1 save edditor</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">
+    QMainWindow { background: #0E1116; color: #E6E6E6; }
+    QWidget#header { background: #0E1116; }
+    QLabel#title { font-size: 16px; font-weight: 600; color: #EAECEF; }
+
+    QListWidget#navList {
+        background: #12161F; border: 1px solid #1B2230;
+        border-radius: 12px; padding: 8px; margin-right: 12px;
+        color: #C9D1D9;
+    }
+    QListWidget#navList::item {
+        padding: 10px 12px; margin: 4px; border-radius: 8px;
+    }
+    QListWidget#navList::item:hover { background: #1A2130; }
+    QListWidget#navList::item:selected { background: #2B90D9; color: #FFFFFF; }
+
+    QWidget#contentCard {
+        background: #12161F; border: 1px solid #1B2230;
+        border-radius: 14px;
+    }
+
+    QToolBar {
+        background: #0E1116; border: 0; padding: 6px 8px; spacing: 8px;
+    }
+    QToolButton { border-radius: 8px; padding: 6px 8px; }
+    QToolButton:hover { background: #1A2130; }
+    QToolButton:pressed { background: #15202B; }
+
+    QMenuBar { background: #0E1116; color: #D0D6DE; }
+    QMenuBar::item { padding: 6px 10px; background: transparent; }
+    QMenuBar::item:selected { background: #1A2130; }
+    QMenu { background: #12161F; color: #D0D6DE; border: 1px solid #1B2230; }
+    QMenu::item { padding: 6px 14px; }
+    QMenu::item:selected { background: #1A2130; color: #FFFFFF; }
+
+    QStatusBar { background: #0E1116; color: #97A3B6; }
+   </string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="rootVBox">
+    <property name="spacing">
+     <number>0</number>
+    </property>
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
+    <item>
+     <layout class="QHBoxLayout" name="headerHBox">
+      <property name="leftMargin">
+       <number>12</number>
+      </property>
+      <property name="topMargin">
+       <number>8</number>
+      </property>
+      <property name="rightMargin">
+       <number>12</number>
+      </property>
+      <property name="bottomMargin">
+       <number>8</number>
+      </property>
+      <item>
+       <widget class="QLabel" name="title">
+        <property name="text">
+         <string>CIV1 save edditor</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="hsp">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>0</width>
+          <height>0</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="bodyHBox">
+      <property name="spacing">
+       <number>0</number>
+      </property>
+      <property name="leftMargin">
+       <number>8</number>
+      </property>
+      <property name="topMargin">
+       <number>8</number>
+      </property>
+      <property name="rightMargin">
+       <number>8</number>
+      </property>
+      <property name="bottomMargin">
+       <number>8</number>
+      </property>
+      <item>
+       <widget class="QListWidget" name="navList">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>20</width>
+          <height>0</height>
+         </size>
+        </property>
+        <item>
+         <property name="text">
+          <string>Map editor</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Tech editor</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Unit editor</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item>
+       <widget class="QStackedWidget" name="stack">
+        <widget class="QWidget" name="pageMap">
+         <layout class="QVBoxLayout" name="vl_map">
+          <item>
+           <widget class="QLabel" name="lblMap">
+            <property name="text">
+             <string>&lt;h2&gt;Map editor&lt;/h2&gt;&lt;p&gt;Coming soon…&lt;/p&gt;</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="sp1">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>0</width>
+              <height>0</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="pageTech">
+         <layout class="QVBoxLayout" name="vl_tech">
+          <item>
+           <widget class="QLabel" name="lblTech">
+            <property name="text">
+             <string>&lt;h2&gt;Tech editor&lt;/h2&gt;&lt;p&gt;Coming soon…&lt;/p&gt;</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="sp2">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>0</width>
+              <height>0</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="pageUnit">
+         <layout class="QVBoxLayout" name="vl_unit">
+          <item>
+           <widget class="QLabel" name="lblUnit">
+            <property name="text">
+             <string>&lt;h2&gt;Unit editor&lt;/h2&gt;&lt;p&gt;Coming soon…&lt;/p&gt;</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="sp3">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>0</width>
+              <height>0</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </widget>
+       </widget>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="contentVBox">
+        <property name="spacing">
+         <number>12</number>
+        </property>
+        <property name="leftMargin">
+         <number>12</number>
+        </property>
+        <property name="topMargin">
+         <number>12</number>
+        </property>
+        <property name="rightMargin">
+         <number>12</number>
+        </property>
+        <property name="bottomMargin">
+         <number>12</number>
+        </property>
+       </layout>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QToolBar" name="mainToolBar">
+   <property name="movable">
+    <bool>false</bool>
+   </property>
+   <property name="iconSize">
+    <size>
+     <width>18</width>
+     <height>18</height>
+    </size>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionOpen"/>
+   <addaction name="actionSave"/>
+   <addaction name="separator"/>
+   <addaction name="actionAbout"/>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1025</width>
+     <height>27</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>&amp;File</string>
+    </property>
+    <addaction name="actionOpen"/>
+    <addaction name="actionSave"/>
+    <addaction name="separator"/>
+    <addaction name="actionExit"/>
+   </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>&amp;Help</string>
+    </property>
+    <addaction name="actionAbout"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuHelp"/>
+  </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionOpen">
+   <property name="icon">
+    <iconset>
+     <normaloff>:/icons/folder.svg</normaloff>:/icons/folder.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Open</string>
+   </property>
+  </action>
+  <action name="actionSave">
+   <property name="icon">
+    <iconset>
+     <normaloff>:/icons/save.svg</normaloff>:/icons/save.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Save</string>
+   </property>
+  </action>
+  <action name="actionExit">
+   <property name="text">
+    <string>Exit</string>
+   </property>
+  </action>
+  <action name="actionAbout">
+   <property name="text">
+    <string>About</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>

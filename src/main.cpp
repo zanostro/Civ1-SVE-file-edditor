@@ -1,11 +1,13 @@
+#include <QApplication>
 #include "mainwindow.h"
 
-#include <QApplication>
+int main(int argc, char *argv[]) {
+    QApplication app(argc, argv);
+    QApplication::setApplicationName("CIV1 save edditor");
+    QApplication::setOrganizationName("CIV1");
+    QApplication::setApplicationVersion("0.1.0");
 
-int main(int argc, char *argv[])
-{
-    QApplication a(argc, argv);
     MainWindow w;
     w.show();
-    return a.exec();
+    return app.exec();
 }

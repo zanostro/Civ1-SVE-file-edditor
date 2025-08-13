@@ -3,7 +3,6 @@ cmake_minimum_required(VERSION 3.12)
 project(Civ1-SVE-file-edditor VERSION 0.1 LANGUAGES CXX)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
-
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
@@ -14,33 +13,29 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets REQUIRED)
 
-# ---- Auto-collect sources from this directory and below ----
-# Uses CONFIGURE_DEPENDS (requires CMake >= 3.12).
+# ---- Auto-collect all sources ----
 file(GLOB_RECURSE PROJECT_SOURCES CONFIGURE_DEPENDS
-    "${CMAKE_CURRENT_LIST_DIR}/*.cpp"
-    "${CMAKE_CURRENT_LIST_DIR}/*.c"
-    "${CMAKE_CURRENT_LIST_DIR}/*.hpp"
-    "${CMAKE_CURRENT_LIST_DIR}/*.h"
-    "${CMAKE_CURRENT_LIST_DIR}/*.ui"
-    "${CMAKE_CURRENT_LIST_DIR}/*.qrc"
+    "${CMAKE_CURRENT_LIST_DIR}/src/*.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/src/*.c"
+    "${CMAKE_CURRENT_LIST_DIR}/src/*.hpp"
+    "${CMAKE_CURRENT_LIST_DIR}/src/*.h"
+    "${CMAKE_CURRENT_LIST_DIR}/ui/*.ui"
+    "${CMAKE_CURRENT_LIST_DIR}/res/*.qrc"
 )
+
+# Example: exclude default main.cpp if you have a custom entry
+# list(FILTER PROJECT_SOURCES EXCLUDE REGEX ".*/main\\.cpp$")
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(Civ1-SVE-file-edditor
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
     )
-# Define target properties for Android with Qt 6 as:
-#    set_property(TARGET Civ1-SVE-file-edditor APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
-#                 ${CMAKE_CURRENT_SOURCE_DIR}/android)
-# For more information, see https://doc.qt.io/qt-6/qt-add-executable.html#target-creation
 else()
     if(ANDROID)
         add_library(Civ1-SVE-file-edditor SHARED
             ${PROJECT_SOURCES}
         )
-# Define properties for Android with Qt 5 after find_package() calls as:
-#    set(ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android")
     else()
         add_executable(Civ1-SVE-file-edditor
             ${PROJECT_SOURCES}
@@ -63,9 +58,9 @@ if(QT_VERSION_MAJOR EQUAL 6)
 endif()
 
 # ------------------------------------------------------------------
-# Manual build (from project root):
+# Manual build:
 #   mkdir -p build
-#   cmake -S . -B build -G Ninja     # or -G "Unix Makefiles"
+#   cmake -S . -B build -G Ninja
 #   cmake --build build -j
 #   ./build/Civ1-SVE-file-edditor
 # ------------------------------------------------------------------
